@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import EditableHomeContent from "./components/EditableHomeContent";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -33,48 +33,14 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <div className="max-w-4xl w-full text-center">
-        <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-          Welcome to Digital Archive
-        </h1>
-        <p className="text-xl text-gray-600 mb-12">
-          A modern platform for storing and displaying your digital content
-        </p>
-        {isInvalidUser && (
-          <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-yellow-800">
-              Your session is invalid. Please register or sign in with valid credentials.
-            </p>
-          </div>
-        )}
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          {effectiveSession ? (
-            <>
-              <Link
-                href="/archive"
-                className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200"
-              >
-                Browse Archive
-              </Link>
-              {effectiveSession.user?.isAdmin && (
-                <Link
-                  href="/admin"
-                  className="px-6 py-3 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors duration-200"
-                >
-                  Admin Dashboard
-                </Link>
-              )}
-            </>
-          ) : (
-            <Link
-              href="/auth/login"
-              className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200"
-            >
-              Get Started
-            </Link>
-          )}
+      <EditableHomeContent />
+      {isInvalidUser && (
+        <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-800">
+            Your session is invalid. Please register or sign in with valid credentials.
+          </p>
         </div>
-      </div>
+      )}
     </main>
   );
 } 
