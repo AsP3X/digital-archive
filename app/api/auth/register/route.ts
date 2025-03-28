@@ -26,23 +26,36 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check if this is the first user
+    const userCount = await prisma.user.count();
+    const isFirstUser = userCount === 0;
+    console.log("User count:", userCount, "Is first user:", isFirstUser);
+
     // Hash password
     const hashedPassword = await hash(password, 12);
 
-    // Create user
+    // Create user with explicit isAdmin flag
     const user = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
+        isAdmin: isFirstUser,
       },
     });
+
+    console.log("Created user:", { id: user.id, email: user.email, isAdmin: user.isAdmin });
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
 
     return NextResponse.json(
-      { message: "User created successfully", user: userWithoutPassword },
+      { 
+        message: isFirstUser 
+          ? "Admin user created successfully" 
+          : "User created successfully",
+        user: userWithoutPassword 
+      },
       { status: 201 }
     );
   } catch (error) {

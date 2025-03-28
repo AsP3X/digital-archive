@@ -5,8 +5,31 @@ import { compare } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import NextAuth from "next-auth/next";
 
+// Extend the built-in session types
+declare module "next-auth" {
+  interface User {
+    isAdmin?: boolean;
+  }
+  
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      name?: string | null;
+      isAdmin: boolean;
+    }
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    isAdmin: boolean;
+  }
+}
+
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as any, // Type casting to avoid adapter compatibility issues
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -35,10 +58,13 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
+        console.log("Authorized user:", { id: user.id, email: user.email, isAdmin: user.isAdmin });
+
         return {
           id: user.id,
           email: user.email,
           name: user.name,
+          isAdmin: user.isAdmin ?? false,
         };
       },
     }),
@@ -54,12 +80,20 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.isAdmin = user.isAdmin ?? false;
+        console.log("JWT token:", { id: token.id, isAdmin: token.isAdmin });
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
+        session.user.id = token.id;
+        session.user.isAdmin = token.isAdmin;
+        console.log("Session:", { 
+          userId: session.user.id, 
+          email: session.user.email, 
+          isAdmin: session.user.isAdmin 
+        });
       }
       return session;
     },

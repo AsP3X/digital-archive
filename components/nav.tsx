@@ -6,6 +6,8 @@ import { useSession, signOut } from "next-auth/react";
 export function Nav() {
   const { data: session } = useSession();
 
+  console.log("Nav component session:", session?.user);
+
   return (
     <nav className="border-b">
       <div className="container mx-auto px-4">
@@ -29,6 +31,14 @@ export function Nav() {
                 >
                   Contact
                 </Link>
+                {session.user?.isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
                 <button
                   onClick={() => signOut()}
                   className="text-sm hover:text-primary transition-colors"
