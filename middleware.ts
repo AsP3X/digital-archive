@@ -16,13 +16,19 @@ export default withAuth(
       // If no token or user is not an admin, redirect to home
       if (!token || !token.isAdmin) {
         console.log("DEBUG - Unauthorized admin access attempt, redirecting to home");
-        // Clear the session by setting expired cookies
+        
+        // Get all cookies before creating the response
+        const cookiesToDelete = req.cookies.getAll()
+          .filter(cookie => cookie.name.startsWith("next-auth"))
+          .map(cookie => cookie.name);
+        
+        // Create the response
         const response = NextResponse.redirect(new URL("/", req.url));
         
         // Delete all NextAuth.js related cookies
-        response.cookies.delete("next-auth.session-token");
-        response.cookies.delete("next-auth.csrf-token");
-        response.cookies.delete("next-auth.callback-url");
+        cookiesToDelete.forEach(cookieName => {
+          response.cookies.delete(cookieName);
+        });
         
         // Set an expired session cookie
         response.cookies.set("next-auth.session-token", "", {
@@ -31,13 +37,6 @@ export default withAuth(
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
           httpOnly: true,
-        });
-        
-        // Clear any other potential auth-related cookies
-        req.cookies.getAll().forEach(cookie => {
-          if (cookie.name.startsWith("next-auth")) {
-            response.cookies.delete(cookie.name);
-          }
         });
         
         return response;

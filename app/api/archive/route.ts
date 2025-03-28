@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -14,6 +14,9 @@ export async function GET() {
       );
     }
 
+    const { searchParams } = new URL(request.url);
+    const limit = searchParams.get('limit');
+    
     const items = await prisma.archiveItem.findMany({
       where: {
         userId: session.user.id,
@@ -21,6 +24,7 @@ export async function GET() {
       orderBy: {
         createdAt: "desc",
       },
+      take: limit ? parseInt(limit) : undefined,
     });
 
     return NextResponse.json(items);

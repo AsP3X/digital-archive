@@ -3,41 +3,43 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Clear existing content
+  // Clear existing home content
   await prisma.homeContent.deleteMany();
 
-  // Add initial content
-  await prisma.homeContent.createMany({
-    data: [
-      {
-        type: 'heading',
-        content: 'Welcome to Digital Archive',
-        order: 0,
-        style: {
-          color: '#1a1a1a',
-          fontSize: '3rem',
-        },
+  // Create default home content
+  const defaultContent = [
+    {
+      type: 'heading',
+      content: 'Welcome to Digital Archive',
+      order: 1,
+      style: {
+        fontSize: '3rem',
+        color: 'hsl(var(--primary))',
       },
-      {
-        type: 'paragraph',
-        content: 'A modern platform for storing and displaying your digital content',
-        order: 1,
-        style: {
-          color: '#666666',
-          fontSize: '1.25rem',
-        },
+    },
+    {
+      type: 'paragraph',
+      content: 'Your personal space for storing and organizing digital memories.',
+      order: 2,
+      style: {
+        fontSize: '1.25rem',
+        color: 'hsl(var(--muted-foreground))',
       },
-      {
-        type: 'button',
-        content: 'Get Started',
-        order: 2,
-        style: {
-          backgroundColor: '#3b82f6',
-          color: '#ffffff',
-        },
-      },
-    ],
-  });
+    },
+    {
+      type: 'archive-grid',
+      content: 'Recent Archives',
+      order: 3,
+    },
+  ];
+
+  for (const content of defaultContent) {
+    await prisma.homeContent.create({
+      data: content,
+    });
+  }
+
+  console.log('Database has been seeded with default home content.');
 }
 
 main()
