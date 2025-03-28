@@ -1,22 +1,43 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create default settings if they don't exist
-  const settings = await prisma.settings.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
-      siteName: 'Digital Archive',
-      siteDescription: 'A digital archive system',
-      contactEmail: 'admin@example.com',
-      maxUploadSize: 10, // 10MB
-    },
-  });
+  // Clear existing content
+  await prisma.homeContent.deleteMany();
 
-  console.log('Default settings created:', settings);
+  // Add initial content
+  await prisma.homeContent.createMany({
+    data: [
+      {
+        type: 'heading',
+        content: 'Welcome to Digital Archive',
+        order: 0,
+        style: {
+          color: '#1a1a1a',
+          fontSize: '3rem',
+        },
+      },
+      {
+        type: 'paragraph',
+        content: 'A modern platform for storing and displaying your digital content',
+        order: 1,
+        style: {
+          color: '#666666',
+          fontSize: '1.25rem',
+        },
+      },
+      {
+        type: 'button',
+        content: 'Get Started',
+        order: 2,
+        style: {
+          backgroundColor: '#3b82f6',
+          color: '#ffffff',
+        },
+      },
+    ],
+  });
 }
 
 main()

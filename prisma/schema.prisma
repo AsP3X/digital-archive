@@ -48,4 +48,14 @@ model Settings {
   contactEmail    String
   maxUploadSize   Int
   updatedAt       DateTime @updatedAt
+}
+
+model HomeContent {
+  id        String   @id @default(cuid())
+  type      String   // "heading", "paragraph", or "button"
+  content   String
+  order     Int
+  style     Json?    // Stores style properties as JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 } 
