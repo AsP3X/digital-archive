@@ -1,43 +1,43 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireAdmin, clearSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
+    // This will redirect non-admin users and clear their session
+    await requireAdmin();
 
-    if (!session || !session.user || !session.user.isAdmin) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    // Get total users count
-    const totalUsers = await prisma.user.count();
-
-    // Get total archives count
-    const totalArchives = await prisma.archiveItem.count();
-
-    // Get recent users
-    const recentUsers = await prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        createdAt: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 5,
-    });
+    const [totalUsers, totalArchives, recentUsers] = await Promise.all([
+      prisma.user.count(),
+      prisma.archiveItem.count(),
+      prisma.user.findMany({
+        take: 5,
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
     return NextResponse.json({
-      totalUsers: totalUsers || 0,
-      totalArchives: totalArchives || 0,
-      recentUsers: recentUsers || [],
+      totalUsers,
+      totalArchives,
+      recentUsers,
     });
   } catch (error) {
-    console.error("Error fetching dashboard stats:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error("Error fetching admin stats:", error);
+    
+    // Clear the session on error
+    await clearSession();
+    
+    return NextResponse.json(
+      { message: "Error fetching admin statistics" },
+      { status: 500 }
+    );
   }
 } 
