@@ -39,4 +39,13 @@ model ContactForm {
   createdAt DateTime @default(now())
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
+}
+
+model Settings {
+  id              Int      @id @default(1)
+  siteName        String
+  siteDescription String
+  contactEmail    String
+  maxUploadSize   Int
+  updatedAt       DateTime @updatedAt
 } 
