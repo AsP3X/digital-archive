@@ -2,11 +2,23 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function Nav() {
   const { data: session } = useSession();
+  const router = useRouter();
 
   console.log("Nav component session:", session?.user);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut({ 
+        callbackUrl: "/"
+      });
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <nav className="border-b">
@@ -40,7 +52,7 @@ export function Nav() {
                   </Link>
                 )}
                 <button
-                  onClick={() => signOut()}
+                  onClick={handleSignOut}
                   className="text-sm hover:text-primary transition-colors"
                 >
                   Sign Out
@@ -58,7 +70,7 @@ export function Nav() {
                   href="/auth/register"
                   className="text-sm hover:text-primary transition-colors"
                 >
-                  Sign Up
+                  Register
                 </Link>
               </>
             )}
