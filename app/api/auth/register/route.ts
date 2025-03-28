@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -46,33 +46,16 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("DEBUG - Created user:", { 
-      id: user.id, 
-      email: user.email, 
-      isAdmin: user.isAdmin,
-      createdAt: user.createdAt 
-    });
-
-    // Verify the user was created correctly
-    const verifyUser = await prisma.user.findUnique({
-      where: { id: user.id },
-    });
-    console.log("DEBUG - Verified user in database:", {
-      id: verifyUser?.id,
-      email: verifyUser?.email,
-      isAdmin: verifyUser?.isAdmin,
-      createdAt: verifyUser?.createdAt
-    });
-
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
-
+    // Return success response without sensitive data
     return NextResponse.json(
       { 
-        message: isFirstUser 
-          ? "Admin user created successfully" 
-          : "User created successfully",
-        user: userWithoutPassword 
+        message: "User created successfully",
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          isAdmin: user.isAdmin
+        }
       },
       { status: 201 }
     );

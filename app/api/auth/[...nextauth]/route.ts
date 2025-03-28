@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import NextAuth from "next-auth/next";
 
 // Extend the built-in session types
@@ -56,56 +56,37 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid password");
         }
 
-        console.log("DEBUG - Authorized user:", {
-          id: user.id,
-          email: user.email,
-          isAdmin: user.isAdmin,
-          createdAt: user.createdAt
-        });
-
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          isAdmin: user.isAdmin ?? false,
+          isAdmin: user.isAdmin,
         };
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  pages: {
-    signIn: "/auth/login",
-    signOut: "/",
-    error: "/auth/login",
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.isAdmin = user.isAdmin ?? false;
-        console.log("DEBUG - JWT token created:", {
-          id: token.id,
-          isAdmin: token.isAdmin
-        });
+        token.isAdmin = user.isAdmin;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.isAdmin = token.isAdmin;
-        console.log("DEBUG - Session created:", {
-          userId: session.user.id,
-          isAdmin: session.user.isAdmin
-        });
+        session.user.id = token.id as string;
+        session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: "/auth/login",
+  },
+  session: {
+    strategy: "jwt",
+  },
 };
 
 const handler = NextAuth(authOptions);
