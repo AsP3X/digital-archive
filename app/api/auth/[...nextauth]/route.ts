@@ -8,16 +8,14 @@ import NextAuth from "next-auth/next";
 // Extend the built-in session types
 declare module "next-auth" {
   interface User {
-    isAdmin?: boolean;
+    id: string;
+    email: string;
+    name?: string | null;
+    isAdmin: boolean;
   }
   
   interface Session {
-    user: {
-      id: string;
-      email: string;
-      name?: string | null;
-      isAdmin: boolean;
-    }
+    user: User;
   }
 }
 
@@ -29,7 +27,7 @@ declare module "next-auth/jwt" {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any, // Type casting to avoid adapter compatibility issues
+  adapter: PrismaAdapter(prisma) as any,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -39,7 +37,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid credentials");
+          throw new Error("Please enter your email and password");
         }
 
         const user = await prisma.user.findUnique({
@@ -49,16 +47,21 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          throw new Error("Invalid credentials");
+          throw new Error("No user found with this email. Please register first.");
         }
 
         const isPasswordValid = await compare(credentials.password, user.password);
 
         if (!isPasswordValid) {
-          throw new Error("Invalid credentials");
+          throw new Error("Invalid password");
         }
 
-        console.log("Authorized user:", { id: user.id, email: user.email, isAdmin: user.isAdmin });
+        console.log("DEBUG - Authorized user:", {
+          id: user.id,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          createdAt: user.createdAt
+        });
 
         return {
           id: user.id,
@@ -71,17 +74,22 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
     signIn: "/auth/login",
-    signOut: "/auth/login",
+    signOut: "/",
+    error: "/auth/login",
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.isAdmin = user.isAdmin ?? false;
-        console.log("JWT token:", { id: token.id, isAdmin: token.isAdmin });
+        console.log("DEBUG - JWT token created:", {
+          id: token.id,
+          isAdmin: token.isAdmin
+        });
       }
       return token;
     },
@@ -89,15 +97,15 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.isAdmin = token.isAdmin;
-        console.log("Session:", { 
-          userId: session.user.id, 
-          email: session.user.email, 
-          isAdmin: session.user.isAdmin 
+        console.log("DEBUG - Session created:", {
+          userId: session.user.id,
+          isAdmin: session.user.isAdmin
         });
       }
       return session;
     },
   },
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);

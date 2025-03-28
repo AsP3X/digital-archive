@@ -29,7 +29,9 @@ export async function POST(request: Request) {
     // Check if this is the first user
     const userCount = await prisma.user.count();
     const isFirstUser = userCount === 0;
-    console.log("User count:", userCount, "Is first user:", isFirstUser);
+    console.log("DEBUG - User count:", userCount);
+    console.log("DEBUG - Is first user:", isFirstUser);
+    console.log("DEBUG - Database connection:", !!prisma);
 
     // Hash password
     const hashedPassword = await hash(password, 12);
@@ -44,7 +46,23 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("Created user:", { id: user.id, email: user.email, isAdmin: user.isAdmin });
+    console.log("DEBUG - Created user:", { 
+      id: user.id, 
+      email: user.email, 
+      isAdmin: user.isAdmin,
+      createdAt: user.createdAt 
+    });
+
+    // Verify the user was created correctly
+    const verifyUser = await prisma.user.findUnique({
+      where: { id: user.id },
+    });
+    console.log("DEBUG - Verified user in database:", {
+      id: verifyUser?.id,
+      email: verifyUser?.email,
+      isAdmin: verifyUser?.isAdmin,
+      createdAt: verifyUser?.createdAt
+    });
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
