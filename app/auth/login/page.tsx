@@ -1,14 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/archive");
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    const registered = searchParams.get("registered");
+    if (registered === "true") {
+      setError("Registration successful! Please log in.");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,7 +42,7 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        setError(result.error);
       } else {
         router.push("/archive");
       }
@@ -43,7 +58,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md p-8 space-y-6 bg-card rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold text-center">Sign In</h1>
         {error && (
-          <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+          <div className={`p-3 text-sm rounded-md ${
+            error.includes("Registration successful") 
+              ? "text-green-700 bg-green-100" 
+              : "text-destructive bg-destructive/10"
+          }`}>
             {error}
           </div>
         )}
