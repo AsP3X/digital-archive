@@ -58,30 +58,38 @@ export default function ArchivePage() {
         <h1 className="text-3xl font-bold">Archive</h1>
         <Link
           href="/archive/new"
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          aria-label="Add new archive item"
         >
           Add New Item
         </Link>
       </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-12" role="status">
           <p className="text-lg text-muted-foreground">
             No items in the archive yet.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          role="list"
+          aria-label="Archive items"
+        >
           {items.map((item) => (
             <div
               key={item.id}
               className="bg-card rounded-lg shadow-md overflow-hidden"
+              role="listitem"
             >
               {item.type === "image" ? (
                 <img
                   src={item.content}
                   alt={item.title}
                   className="w-full h-48 object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <div className="w-full h-48 bg-muted flex items-center justify-center p-4">
@@ -98,12 +106,16 @@ export default function ArchivePage() {
                   </p>
                 )}
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
+                  <time 
+                    dateTime={item.createdAt}
+                    className="text-sm text-muted-foreground"
+                  >
                     {new Date(item.createdAt).toLocaleDateString()}
-                  </span>
+                  </time>
                   <Link
                     href={`/archive/${item.id}`}
-                    className="text-primary hover:underline"
+                    className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded-md px-2 py-1"
+                    aria-label={`View details for ${item.title}`}
                   >
                     View Details
                   </Link>

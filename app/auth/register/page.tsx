@@ -67,7 +67,7 @@ export default function RegisterPage() {
               id="name"
               name="name"
               required
-              className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2"
+              className="mt-1 block w-full rounded-md border border-input bg-white text-black px-3 py-2"
             />
           </div>
           <div>
@@ -79,7 +79,7 @@ export default function RegisterPage() {
               id="email"
               name="email"
               required
-              className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2"
+              className="mt-1 block w-full rounded-md border border-input bg-white text-black px-3 py-2"
             />
           </div>
           <div>
@@ -91,7 +91,7 @@ export default function RegisterPage() {
               id="password"
               name="password"
               required
-              className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2"
+              className="mt-1 block w-full rounded-md border border-input bg-white text-black px-3 py-2"
             />
           </div>
           <div>
@@ -103,7 +103,7 @@ export default function RegisterPage() {
               id="confirmPassword"
               name="confirmPassword"
               required
-              className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2"
+              className="mt-1 block w-full rounded-md border border-input bg-white text-black px-3 py-2"
             />
           </div>
           <button

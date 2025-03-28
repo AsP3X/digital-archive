@@ -6,50 +6,40 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import ArchivePreview from '@/components/ui/archive-preview';
 
-interface HomeContent {
+interface PageElement {
   id: string;
-  type: 'heading' | 'paragraph' | 'archive-grid';
+  type: 'heading' | 'paragraph' | 'image' | 'archive-grid';
   content: string;
-  order: number;
-  style?: {
-    color?: string;
-    fontSize?: string;
-    backgroundColor?: string;
-  };
 }
 
-const defaultContent: HomeContent[] = [
+interface Page {
+  title: string;
+  slug: string;
+  content: PageElement[];
+  isPublished: boolean;
+}
+
+const defaultContent: PageElement[] = [
   {
     id: 'default-heading',
     type: 'heading',
     content: 'Welcome to Digital Archive',
-    order: 1,
-    style: {
-      fontSize: '3rem',
-      color: 'hsl(var(--primary))',
-    },
   },
   {
     id: 'default-paragraph',
     type: 'paragraph',
     content: 'Your personal space for storing and organizing digital memories.',
-    order: 2,
-    style: {
-      fontSize: '1.25rem',
-      color: 'hsl(var(--muted-foreground))',
-    },
   },
   {
     id: 'default-archive-grid',
     type: 'archive-grid',
     content: 'Recent Archives',
-    order: 3,
   },
 ];
 
 export default function EditableHomeContent() {
   const { data: session } = useSession();
-  const [content, setContent] = useState<HomeContent[]>([]);
+  const [page, setPage] = useState<Page | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -58,13 +48,19 @@ export default function EditableHomeContent() {
 
   const fetchContent = async () => {
     try {
-      const response = await fetch('/api/home-content');
-      if (!response.ok) throw new Error('Failed to fetch home content');
+      const response = await fetch('/api/pages/home');
+      if (!response.ok) throw new Error('Failed to fetch home page');
       const data = await response.json();
-      setContent(data.length > 0 ? data : defaultContent);
+      setPage(data);
     } catch (error) {
       console.error('Error fetching content:', error);
-      setContent(defaultContent);
+      // If there's an error, create a default page structure
+      setPage({
+        title: 'Home',
+        slug: 'home',
+        content: defaultContent,
+        isPublished: true,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -78,29 +74,39 @@ export default function EditableHomeContent() {
     );
   }
 
+  if (!page) {
+    return null;
+  }
+
   return (
     <div className="max-w-4xl w-full text-center">
-      {content.map((item) => (
+      {page.content.map((element) => (
         <div
-          key={item.id}
-          style={item.style}
+          key={element.id}
           className="mb-6"
         >
-          {item.type === 'heading' && (
+          {element.type === 'heading' && (
             <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              {item.content}
+              {element.content}
             </h1>
           )}
-          {item.type === 'paragraph' && (
+          {element.type === 'paragraph' && (
             <p className="text-xl text-gray-600">
-              {item.content}
+              {element.content}
             </p>
           )}
-          {item.type === 'archive-grid' && (
+          {element.type === 'archive-grid' && (
             <div className="mt-8">
-              <h2 className="text-2xl font-semibold mb-6">{item.content}</h2>
+              <h2 className="text-2xl font-semibold mb-6">{element.content}</h2>
               <ArchivePreview />
             </div>
+          )}
+          {element.type === 'image' && (
+            <img
+              src={element.content}
+              alt=""
+              className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
+            />
           )}
         </div>
       ))}

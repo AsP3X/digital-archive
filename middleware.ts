@@ -47,11 +47,18 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ token, req }) => {
+        // Allow access to public routes
+        if (!req.nextUrl.pathname.startsWith("/admin") && !req.nextUrl.pathname.startsWith("/archive")) {
+          return true;
+        }
+        // Require authentication for protected routes
+        return !!token;
+      },
     },
   }
 );
 
 export const config = {
-  matcher: ["/admin/:path*", "/archive/:path*"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 }; 

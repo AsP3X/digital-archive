@@ -83,7 +83,7 @@ export default function ContactPage() {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2"
+              className="w-full rounded-md border border-input bg-white text-black px-3 py-2"
             />
           </div>
           <div>
@@ -97,7 +97,7 @@ export default function ContactPage() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2"
+              className="w-full rounded-md border border-input bg-white text-black px-3 py-2"
             />
           </div>
           <div>
@@ -111,7 +111,7 @@ export default function ContactPage() {
               onChange={handleChange}
               required
               rows={5}
-              className="w-full rounded-md border border-input bg-background px-3 py-2"
+              className="w-full rounded-md border border-input bg-white text-black px-3 py-2"
             />
           </div>
           <button

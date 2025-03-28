@@ -59,7 +59,7 @@ export default function NewArchiveItemPage() {
             {error}
           </div>
         )}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" role="form" aria-label="Create new archive item">
           <div>
             <label htmlFor="title" className="block text-sm font-medium mb-1">
               Title
@@ -71,8 +71,13 @@ export default function NewArchiveItemPage() {
               value={formData.title}
               onChange={handleChange}
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2"
+              aria-required="true"
+              aria-describedby="title-description"
+              className="w-full rounded-md border border-input bg-white text-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
             />
+            <p id="title-description" className="text-sm text-muted-foreground mt-1">
+              Enter a descriptive title for your archive item
+            </p>
           </div>
           <div>
             <label htmlFor="description" className="block text-sm font-medium mb-1">
@@ -84,8 +89,12 @@ export default function NewArchiveItemPage() {
               value={formData.description}
               onChange={handleChange}
               rows={3}
-              className="w-full rounded-md border border-input bg-background px-3 py-2"
+              aria-describedby="description-description"
+              className="w-full rounded-md border border-input bg-white text-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
             />
+            <p id="description-description" className="text-sm text-muted-foreground mt-1">
+              Provide a brief description of the item (optional)
+            </p>
           </div>
           <div>
             <label htmlFor="type" className="block text-sm font-medium mb-1">
@@ -97,11 +106,16 @@ export default function NewArchiveItemPage() {
               value={formData.type}
               onChange={handleChange}
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2"
+              aria-required="true"
+              aria-describedby="type-description"
+              className="w-full rounded-md border border-input bg-white text-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="text">Text</option>
               <option value="image">Image</option>
             </select>
+            <p id="type-description" className="text-sm text-muted-foreground mt-1">
+              Select the type of content you want to archive
+            </p>
           </div>
           <div>
             <label htmlFor="content" className="block text-sm font-medium mb-1">
@@ -115,8 +129,10 @@ export default function NewArchiveItemPage() {
                 value={formData.content}
                 onChange={handleChange}
                 required
+                aria-required="true"
+                aria-describedby="content-description"
                 placeholder="https://example.com/image.jpg"
-                className="w-full rounded-md border border-input bg-background px-3 py-2"
+                className="w-full rounded-md border border-input bg-white text-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
               />
             ) : (
               <textarea
@@ -125,23 +141,33 @@ export default function NewArchiveItemPage() {
                 value={formData.content}
                 onChange={handleChange}
                 required
+                aria-required="true"
+                aria-describedby="content-description"
                 rows={5}
-                className="w-full rounded-md border border-input bg-background px-3 py-2"
+                className="w-full rounded-md border border-input bg-white text-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
               />
             )}
+            <p id="content-description" className="text-sm text-muted-foreground mt-1">
+              {formData.type === "image" 
+                ? "Enter the URL of the image you want to archive"
+                : "Enter the text content you want to archive"}
+            </p>
           </div>
           <div className="flex justify-end space-x-4">
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary rounded-md"
+              aria-label="Cancel and go back"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              aria-busy={loading}
+              aria-label={loading ? "Creating item..." : "Create new archive item"}
             >
               {loading ? "Creating..." : "Create Item"}
             </button>

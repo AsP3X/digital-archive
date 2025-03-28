@@ -97,19 +97,22 @@ export default function ArchiveItemPage({ params }: { params: { id: string } }) 
           <h1 className="text-3xl font-bold">{item.title}</h1>
           <Link
             href="/archive"
-            className="text-sm text-muted-foreground hover:text-foreground"
+            className="text-sm text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary rounded-md px-2 py-1"
+            aria-label="Back to archive list"
           >
             Back to Archive
           </Link>
         </div>
 
-        <div className="bg-card rounded-lg shadow-md overflow-hidden">
+        <div className="bg-card rounded-lg shadow-md overflow-hidden" role="article">
           {item.type === "image" ? (
             <div className="relative aspect-video">
               <img
                 src={item.content}
                 alt={item.title}
                 className="w-full h-full object-contain"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           ) : (
@@ -124,10 +127,12 @@ export default function ArchiveItemPage({ params }: { params: { id: string } }) 
 
           <div className="p-6">
             {item.description && (
-              <p className="text-muted-foreground mb-4">{item.description}</p>
+              <p className="text-muted-foreground mb-4" role="doc-subtitle">
+                {item.description}
+              </p>
             )}
             <div className="text-sm text-muted-foreground">
-              Created on {new Date(item.createdAt).toLocaleDateString()}
+              Created on <time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleDateString()}</time>
             </div>
           </div>
         </div>
